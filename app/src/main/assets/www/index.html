@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>MobileMarket - Menu</title>
+  <link rel='stylesheet' type='text/css' href='style.css' />
+  <script type="text/javascript" charset="utf-8" src="cordova-2.7.0.js"></script>
+  <script type='text/javascript' charset='utf-8' src='jquery-1.9.1.min.js'></script>
+  <script type='text/javascript'>
+  	  var host = "http://<your site>/manager/web/";
+  	  var cur = 'home';
+	  	document.addEventListener("deviceready", onDeviceReady, false);
+	  	function onDeviceReady() {
+	  	    document.addEventListener("backbutton", onBackKeyDown, false);
+	  	}
+	  	function onBackKeyDown(){
+	  		if(cur != 'home')
+	  		{
+	  			loadData();
+	  			cur = 'home';
+	  	    	return false;
+	  		}
+	  		if(cur == 'home')
+	  		{
+	  			navigator.app.exitApp();
+	  		}
+	  	}
+	  $(function()
+	  { 
+	  	var total = 0;
+	  	var phone = "069688126";
+	  	$('.menu').on('click','.buy',function(){
+	  		var count = $(this).children('.count').text();
+	  		$(this).children('.count').text(parseInt(count)+1);
+	  		total += parseInt($(this).children('.count').attr('pret'));
+	  		
+	  		$('#total span').text(total);
+	  	});
+	  	
+	  	$('.right .button').click(function(){
+			var postData = "";
+			$.each($('.item'),function()
+			{
+				if($(this).children('.buy').children('.count').text() > '0')
+				{
+					postData += $(this).children('.product-name').text()+' ~ '+$(this).children('.buy').children('.count').text()+";";
+					$(this).children('.buy').children('.count').text('0');
+					total = 0;
+					$('#total span').text(total);
+				}
+			});
+			var postTo = host+"order.php";
+	  		$.post(postTo,{'content':postData}, function(response)
+	  		{
+				loadURL(host+'payment.php?id='+response);
+				cur = 'payment';
+			});
+	  	});
+	  	
+		  //Click on category
+		  $('body').on("click",'.category',function(){
+			  loadData($(this).attr('id'));
+			  cur = 'category';
+		  });
+		  
+	  });
+	  var loadFrom = host+"index.php";
+	  function loadData(id)
+	  {
+		  var url = '';
+		  if(typeof(id)!='undefined')
+		  {
+		   	url = '?category='+id;
+		  }
+	  	$('.menu').load(loadFrom+url);
+	  }
+	  function getResource(resource)
+	  {
+		  return host+resource;
+	  }
+	  function loadURL(url){
+		    navigator.app.loadUrl(url, { openExternal:true });
+		    return false;
+		} 
+  </script>
+ </head>
+ <body onload='loadData()'>
+<div class='header'>
+	<img id='logo' src='images/logo.png'>
+	<div class='right'>
+		<div id='total'>Total: <span>0</span> $</div>
+		<div class='btn btn-success button'><span>Order</span></div>
+	</div>
+</div>
+<div class='container'>
+	<div class='menu'>
+	</div>
+</div>
+</body>
+</html>
